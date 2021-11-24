@@ -4,6 +4,16 @@ const app = express()
 const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
 
+var Rollbar = require("rollbar");
+var rollbar = new Rollbar({
+  accessToken: 'a9aae08a73f44c9b8e33b032d8309d56',
+  captureUncaught: true,
+  captureUnhandledRejections: true
+});
+
+// record a generic message and send it to Rollbar
+rollbar.log("Hello world!");
+
 app.use(express.json())
 app.use("/", express.static(path.join(__dirname,"/public/server.js")))
 app.use("/", express.static(path.join(__dirname,"/public/style.css")))
@@ -22,6 +32,7 @@ app.get('/api/robots', (req, res) => {
         res.status(200).send(botsArr)
     } catch (error) {
         console.log('ERROR GETTING BOTS', error)
+        rollbar.error('could not get bots')
         res.sendStatus(400)
     }
 })
@@ -43,6 +54,7 @@ app.get('/api/robots/five', (req, res) => {
 })
 
 app.post('/api/duel', (req, res) => {
+    rollbar.info('duel has initiated successfully')
     try {
         // getting the duos from the front end
         let {compDuo, playerDuo} = req.body
@@ -87,12 +99,12 @@ const port = process.env.PORT || 3000
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
-var Rollbar = require("rollbar");
-var rollbar = new Rollbar({
-  accessToken: 'a9aae08a73f44c9b8e33b032d8309d56',
-  captureUncaught: true,
-  captureUnhandledRejections: true
-});
+// var Rollbar = require("rollbar");
+// var rollbar = new Rollbar({
+//   accessToken: 'a9aae08a73f44c9b8e33b032d8309d56',
+//   captureUncaught: true,
+//   captureUnhandledRejections: true
+// });
 
-// record a generic message and send it to Rollbar
-rollbar.log("Hello world!");
+// // record a generic message and send it to Rollbar
+// rollbar.log("Hello world!");
